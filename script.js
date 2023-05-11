@@ -1,15 +1,16 @@
 
-const movies = document.querySelector('.movies')
-const btnTheme = document.querySelector('.btn-theme')
-const btnPrev = document.querySelector('.btn-prev')
-const btnNext = document.querySelector('.btn-next')
-const input = document.querySelector('.input')
+const movies = document.querySelector('.movies');
+const btnTheme = document.querySelector('.btn-theme');
+const btnPrev = document.querySelector('.btn-prev');
+const btnNext = document.querySelector('.btn-next');
+const input = document.querySelector('.input');
+const modal = document.querySelector('.modal', '.hidden');
 
 
 let page = 0;
 let search = false;
 let searchData = [];
-console.log(search, searchData)
+
 
 const api = axios.create({
     baseURL: 'https://tmdb-proxy.cubos-academy.workers.dev',
@@ -57,6 +58,9 @@ async function renderMovies() {
         movieInfo.appendChild(movieRating)
         movie.appendChild(movieInfo)
         movies.appendChild(movie)
+
+
+        movie.addEventListener('click', async () => await movieModal(results.id));
     });
 }
 
@@ -137,6 +141,39 @@ async function dayMovie() {
 }
 dayMovie()
 
+
+async function movieModal(movieId) {
+    modal.classList.remove('hidden');
+    console.log(movieId)
+    const movieApi = await api.get(`/3/movie/${movieId}?language=pt-BR`);
+
+
+    let modalTitle = document.querySelector('.modal__title');
+    modalTitle.textContent = movieApi.data.title;
+
+    let modalImg = document.querySelector('.modal__img');
+    modalImg.src = movieApi.data.backdrop_path;
+
+    let modalDescription = document.querySelector('.modal__description');
+    modalDescription.textContent = movieApi.data.overview;
+
+    let modalAverage = document.querySelector('.modal__average');
+    modalAverage.textContent = movieApi.data.vote_average;
+
+    let modalGenres = document.querySelector('.modal__genres');
+    const modalDate = movieApi.data.genres;
+
+    modalGenres.innerHTML = '';
+
+    modalDate.forEach((genre) => {
+        const modalSpan = document.createElement('span');
+        modalSpan.classList.add('modal__genre');
+        modalSpan.textContent = genre.name;
+        modalGenres.appendChild(modalSpan);
+    })
+};
+
+
 modal.addEventListener('click', () => {
     modal.classList.add('hidden');
-})
+});
