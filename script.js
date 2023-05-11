@@ -80,12 +80,6 @@ btnPrev.addEventListener('click', () => {
     renderMovies();
 })
 
-
-// const getMovies = async () => {
-//     const response = await fetch('https://tmdb-proxy.cubos-academy.workers.dev/3/search/movie?language=pt-BR&include_adult=false');
-//     movies = await response.json();
-// }
-
 async function searchMovie(e) {
     const response = await api.get(`/3/search/movie?language=pt-BR&include_adult=false&query=${input.value}`);
     const movies = response.data;
@@ -102,5 +96,47 @@ async function searchMovie(e) {
     renderMovies();
 }
 
-
 input.addEventListener('keypress', searchMovie);
+
+async function dayMovie() {
+    const endpointGeral = await api.get('/3/movie/436969?language=pt-BR');
+    const endpointVideo = await api.get('/3/movie/436969/videos?language=pt-BR');
+
+    let highLightVideoLink = document.querySelector('.highlight__video-link')
+    highLightVideoLink.setAttribute('href', `https://www.youtube.com/watch?v=${endpointVideo.data.results[0].key}`);
+
+    let highLightPicture = endpointGeral.data.backdrop_path;
+
+    let highLightVideo = document.querySelector('.highlight__video');
+    highLightVideo.style.backgroundImage = `url(${highLightPicture})`;
+    highLightVideo.style.backgroundSize = 'contain';
+
+    let highLightTitle = document.querySelector('.highlight__title');
+    highLightTitle.textContent = endpointGeral.data.title;
+
+    let highLightRating = document.querySelector('.highlight__rating');
+    highLightRating.textContent = endpointGeral.data.vote_average;
+
+    let highLightGenres = document.querySelector('.highlight__genres');
+    highLightGenres.textContent = endpointGeral.data.genres.map(genre => genre.name).join(', ')
+
+    const currentDate = new Date(endpointGeral.data.release_date);
+    const formatDate = currentDate.toLocaleDateString("pt-BR", {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'UTC'
+    });
+
+    let highLightLaunch = document.querySelector('.highlight__launch');
+    highLightLaunch.textContent = formatDate;
+
+    let highLightDescription = document.querySelector('.highlight__description');
+    highLightDescription.textContent = endpointGeral.data.overview;
+
+}
+dayMovie()
+
+modal.addEventListener('click', () => {
+    modal.classList.add('hidden');
+})
